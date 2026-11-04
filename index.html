@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#1b2a14">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='34' r='22' fill='%236b4226'/%3E%3Ccircle cx='10' cy='30' r='8' fill='%236b4226'/%3E%3Ccircle cx='54' cy='30' r='8' fill='%236b4226'/%3E%3Cellipse cx='32' cy='40' rx='15' ry='12' fill='%23eac4a0'/%3E%3Ccircle cx='25' cy='30' r='7' fill='%23eac4a0'/%3E%3Ccircle cx='39' cy='30' r='7' fill='%23eac4a0'/%3E%3Ccircle cx='25' cy='30' r='3' fill='%23222'/%3E%3Ccircle cx='39' cy='30' r='3' fill='%23222'/%3E%3C/svg%3E">
+  <meta name="description" content="Monkey Run - a 3D endless temple runner. Steal the Sun Banana and outrun the jaguar guardian.">
+  <title>Monkey Run</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js" } }</script>
+</head>
+<body>
+  <canvas id="game"></canvas>
+  <canvas id="fx"></canvas>
+
+  <div id="ui">
+    <!-- LOADING -->
+    <div id="loading" class="screen show">
+      <div class="logo">MONKEY<span>RUN</span></div>
+      <div class="load-bar"><div id="load-fill"></div></div>
+      <div id="load-text">Loading…</div>
+    </div>
+
+    <!-- TITLE -->
+    <div id="title" class="screen">
+      <div class="title-top">
+        <div class="logo big">MONKEY<span>RUN</span></div>
+        <div class="tagline">Steal the Sun Banana. Outrun the Guardian.</div>
+      </div>
+      <div class="title-bottom">
+        <div class="title-stats">
+          <div class="chip"><span class="banana-slot"></span><b id="t-bananas">0</b></div>
+          <div class="chip">BEST <b id="t-best">0</b></div>
+          <div class="chip">MULTIPLIER <b>x<span id="t-mult">1</span></b></div>
+        </div>
+        <div class="skin-name" id="t-skin"></div>
+        <button id="btn-play" class="btn primary big">RUN!</button>
+        <div class="row">
+          <button id="btn-shop" class="btn">Shop</button>
+          <button id="btn-missions" class="btn">Missions</button>
+          <button id="btn-help" class="btn">How to play</button>
+          <button id="btn-settings" class="btn icon" aria-label="Settings">⚙</button>
+        </div>
+        <div class="hint-keys"><kbd>←</kbd><kbd>→</kbd> turn &amp; dodge · <kbd>↑</kbd> jump · <kbd>↓</kbd> slide · <kbd>Esc</kbd> pause · swipe on touch screens</div>
+      </div>
+    </div>
+
+    <!-- HUD -->
+    <div id="hud" class="hidden">
+      <div class="hud-left">
+        <div id="h-score" class="score">0</div>
+        <div class="sub"><span id="h-dist">0</span> m · BEST <span id="h-best">0</span></div>
+        <div id="h-mult" class="mult">x1</div>
+      </div>
+      <div class="hud-right">
+        <div class="banana-count"><span class="banana-slot"></span><span id="h-bananas">0</span></div>
+        <div id="h-powerups"></div>
+      </div>
+      <button id="btn-pause" class="pause-btn" aria-label="Pause"><span></span><span></span></button>
+      <div id="toasts"></div>
+      <div id="banner" class="banner"><div class="b-title"></div><div class="b-sub"></div></div>
+      <div id="tutorial" class="tutorial"></div>
+      <div id="newbest" class="newbest">NEW BEST!</div>
+      <div id="fps"></div>
+    </div>
+
+    <div id="countdown" class="countdown"></div>
+
+    <!-- PAUSE -->
+    <div id="pause" class="screen modal">
+      <div class="panel">
+        <h2>Paused</h2>
+        <div class="section-label">Missions</div>
+        <div id="pause-missions" class="missions-list"></div>
+        <button id="btn-resume" class="btn primary">Resume</button>
+        <div class="row">
+          <button id="btn-restart" class="btn">Restart</button>
+          <button id="btn-pause-settings" class="btn">Settings</button>
+          <button id="btn-quit" class="btn">Menu</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GAME OVER -->
+    <div id="gameover" class="screen modal">
+      <div class="panel wide">
+        <div id="go-newbest" class="ribbon">NEW BEST!</div>
+        <h2 id="go-title">CAUGHT!</h2>
+        <div id="go-cause" class="cause"></div>
+        <div class="go-score"><div class="label">SCORE</div><div id="go-score" class="value">0</div></div>
+        <div class="go-stats">
+          <div><span>Distance</span><b id="go-dist"></b></div>
+          <div><span>Bananas</span><b id="go-bananas"></b></div>
+          <div><span>Multiplier</span><b id="go-mult"></b></div>
+          <div><span>Best</span><b id="go-best"></b></div>
+        </div>
+        <div class="wallet">Wallet: <b id="go-wallet"></b></div>
+        <div id="go-revive" class="revive">
+          <button id="btn-revive" class="btn gold">Save me! <span class="banana-slot"></span><span id="revive-cost">0</span></button>
+          <div class="revive-timer"><div id="revive-fill"></div></div>
+        </div>
+        <div class="row">
+          <button id="btn-again" class="btn primary">Run again</button>
+          <button id="btn-go-shop" class="btn">Shop</button>
+          <button id="btn-go-menu" class="btn">Menu</button>
+        </div>
+        <div class="section-label">Missions</div>
+        <div id="go-missions" class="missions-list compact"></div>
+      </div>
+    </div>
+
+    <!-- SHOP -->
+    <div id="shop" class="screen modal side">
+      <div class="panel wide tall">
+        <div class="panel-head">
+          <h2>Trading Post</h2>
+          <div class="chip"><span class="banana-slot"></span><b id="shop-bananas">0</b></div>
+          <button class="close" data-close aria-label="Close">✕</button>
+        </div>
+        <div class="tabs">
+          <button class="tab active" data-tab="upgrades">Power-ups</button>
+          <button class="tab" data-tab="skins">Monkeys</button>
+        </div>
+        <div id="shop-upgrades" class="shop-list"></div>
+        <div id="shop-skins" class="shop-list hidden"></div>
+      </div>
+    </div>
+
+    <!-- MISSIONS -->
+    <div id="missions" class="screen modal">
+      <div class="panel wide">
+        <div class="panel-head"><h2>Missions</h2><button class="close" data-close aria-label="Close">✕</button></div>
+        <div class="mult-big"><div>Score multiplier</div><b id="m-mult">x1</b><small><span id="m-level">0</span> missions completed · each one adds +1</small></div>
+        <div id="missions-list" class="missions-list"></div>
+        <div class="section-label">Records</div>
+        <div id="m-stats" class="go-stats"></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="settings" class="screen modal">
+      <div class="panel">
+        <div class="panel-head"><h2>Settings</h2><button class="close" data-close aria-label="Close">✕</button></div>
+        <div id="settings-body"></div>
+      </div>
+    </div>
+
+    <!-- HELP -->
+    <div id="help" class="screen modal">
+      <div class="panel wide tall">
+        <div class="panel-head"><h2>How to play</h2><button class="close" data-close aria-label="Close">✕</button></div>
+        <div class="help">
+          <p class="story">Coco the capuchin just swiped the <b>Sun Banana</b> from the Temple of Kahu-Ra. The jaguar Guardian is awake. Run!</p>
+          <div class="help-grid">
+            <div class="help-item"><div class="keys"><kbd>←</kbd><kbd>→</kbd></div><div><b>Turn &amp; dodge</b><br>At a corner, ← / → turns. Everywhere else it changes lanes. Swipe on touch.</div></div>
+            <div class="help-item"><div class="keys"><kbd>↑</kbd><kbd>Space</kbd></div><div><b>Jump</b><br>Over logs, roots, spike walls, rubble and gaps.</div></div>
+            <div class="help-item"><div class="keys"><kbd>↓</kbd></div><div><b>Slide</b><br>Under stone arches, branches and fire jets. In the air it slams you down.</div></div>
+            <div class="help-item"><div class="keys"><kbd>Esc</kbd></div><div><b>Pause</b><br>Also pauses when you switch tabs.</div></div>
+          </div>
+          <div class="section-label">Dangers</div>
+          <ul class="help-list">
+            <li><b>Roots</b> trip you up. Trip twice while the Guardian is close and you're caught.</li>
+            <li><b>Logs, spike walls, pillars, statues, boulders</b> stop you dead.</li>
+            <li><b>Gaps &amp; narrow bridges</b> drop into the misty chasm.</li>
+            <li><b>Dead ends</b>: miss a turn and you hit the temple wall.</li>
+          </ul>
+          <div class="section-label">Power-ups</div>
+          <ul class="help-list">
+            <li>🧲 <b>Banana Magnet</b>: pulls bananas to you.</li>
+            <li>🛡️ <b>Jade Shield</b>: survives one crash or fall.</li>
+            <li>✖2 <b>Double Score</b>: doubles every point.</li>
+            <li>⚡ <b>Jungle Rush</b>: you sprint, smash through everything and turn on your own.</li>
+          </ul>
+          <div class="section-label">Progress</div>
+          <ul class="help-list">
+            <li>Bananas are your money: upgrade power-ups and unlock new monkeys in the shop. Golden bananas count as 5.</li>
+            <li>Every mission you finish adds <b>+1</b> to your score multiplier, permanently.</li>
+            <li>The jungle changes every 1,000 m: Emerald Jungle, Sunset Ruins, Moonlit Temple, Bamboo Mists.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <noscript>Monkey Run needs JavaScript and WebGL.</noscript>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
