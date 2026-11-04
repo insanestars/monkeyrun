@@ -446,12 +446,22 @@ export class UI {
       Save.save();
       location.reload();
     }));
-    $('btn-reset').addEventListener('click', (e) => {
+    // two-step confirmation built into the button (no browser dialogs)
+    const reset = $('btn-reset');
+    reset.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (confirm('Erase all bananas, skins, upgrades and records?')) {
+      if (reset.dataset.armed) {
         Save.reset();
         location.reload();
+        return;
       }
+      reset.dataset.armed = '1';
+      reset.textContent = 'Tap again to erase everything';
+      this.g.audio.play('error');
+      setTimeout(() => {
+        delete reset.dataset.armed;
+        reset.textContent = 'Reset all progress';
+      }, 3000);
     });
   }
 }
