@@ -156,6 +156,7 @@ export function collapseRanges(geometry, list) {
   const P = geometry.attributes.position;
   for (const [start, count] of list) {
     for (let i = start; i < start + count; i++) P.setXYZ(i, 0, -9999, 0);
+    P.addUpdateRange(start * 3, count * 3);
   }
   P.needsUpdate = true;
 }

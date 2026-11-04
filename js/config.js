@@ -52,7 +52,7 @@ export const BIOMES = [
       fog: 0x13223e, fogDensity: 0.0135,
       sun: 0x9fb8ff, sunIntensity: 0.9, sunElev: 0.75, sunAzim: -0.8,
       hemiSky: 0x5a78c0, hemiGround: 0x101a20, hemiIntensity: 0.7,
-      ambient: 0.12, torch: 2.2, canopy: 0x0f1e22, mist: 0x4a6aa0, mountains: 0x18284a,
+      ambient: 0.12, torch: 1.4, canopy: 0x0f1e22, mist: 0x4a6aa0, mountains: 0x18284a,
       fireflies: 1, stars: 1, exposure: 1.15,
     },
   },

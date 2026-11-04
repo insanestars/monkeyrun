@@ -494,6 +494,9 @@ export class Game {
     // collisions
     this.collide();
     if (this.state !== 'play') return;
+    for (const o of p.st.obstacles) {
+      if (!o.sunk && !o.dead && (o.kind === 'block' || o.kind === 'lowblock') && o.s1 < p.s - 1.6) this.track.sink(p.st, o);
+    }
 
     // pickups
     this.pickups(dt);

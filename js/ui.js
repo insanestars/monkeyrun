@@ -238,7 +238,9 @@ export class UI {
     el.className = 'toast ' + kind;
     if (color) el.style.setProperty('--c', color);
     el.textContent = text;
-    $('toasts').appendChild(el);
+    const box = $('toasts');
+    while (box.children.length >= 3) box.firstChild.remove();
+    box.appendChild(el);
     setTimeout(() => el.classList.add('out'), 2200);
     setTimeout(() => el.remove(), 2700);
   }

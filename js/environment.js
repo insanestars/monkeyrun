@@ -46,7 +46,7 @@ export class Environment {
     this.torchLights = [];
     const nLights = quality === 'low' ? 2 : 4;
     for (let i = 0; i < nLights; i++) {
-      const l = new THREE.PointLight(0xff8a30, 0, 14, 1.6);
+      const l = new THREE.PointLight(0xff8a30, 0, 11, 1.8);
       scene.add(l);
       this.torchLights.push(l);
     }

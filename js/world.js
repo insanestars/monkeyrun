@@ -121,6 +121,7 @@ export class Track {
     this.quality = quality;
     this.live = new Set();
     this.queue = [];
+    this.sinking = [];
     this.G = this.makeGeometries();
 
     // instanced bananas
@@ -1184,6 +1185,44 @@ export class Track {
   // =========================================================================
   // Per-frame
   // =========================================================================
+  // Lane obstacles the player has passed sink into the causeway so they never
+  // fill the chase camera's view as it goes by.
+  sink(st, o) {
+    if (o.dead || o.sunk) return;
+    o.sunk = true;
+    const parts = [];
+    for (const { mesh, ranges } of st.merged) {
+      const list = ranges.get(o.tag);
+      if (!list) continue;
+      const P = mesh.geometry.attributes.position;
+      for (const [start, count] of list) {
+        const ys = new Float32Array(count);
+        for (let i = 0; i < count; i++) ys[i] = P.getY(start + i);
+        parts.push({ P, start, count, ys });
+      }
+    }
+    if (parts.length) this.sinking.push({ st, parts, t: 0 });
+  }
+
+  updateSinking(dt) {
+    for (let k = this.sinking.length - 1; k >= 0; k--) {
+      const e = this.sinking[k];
+      if (e.st.disposed) {
+        this.sinking.splice(k, 1);
+        continue;
+      }
+      e.t += dt;
+      const f = Math.min(1, e.t / 0.4);
+      const off = -f * f * 4.0;
+      for (const { P, start, count, ys } of e.parts) {
+        for (let i = 0; i < count; i++) P.setY(start + i, ys[i] + off);
+        P.addUpdateRange(start * 3, count * 3);
+        P.needsUpdate = true;
+      }
+      if (f >= 1) this.sinking.splice(k, 1);
+    }
+  }
+
   smash(st, o) {
     if (o.dead) return;
     o.dead = true;
@@ -1194,6 +1233,7 @@ export class Track {
   }
 
   update(dt, t) {
+    this.updateSinking(dt);
     this.mats.flame.uniforms.uTime.value = t;
     this.glowMat.uniforms.uTime.value = t;
     let n = 0, g = 0;
